@@ -38,4 +38,4 @@ https://covid19-xray-ui.onrender.com
 
 ## 👨‍💻 Developer
 
-**Ghanshyam Prajapati**
+**Devendar Kumavat**
