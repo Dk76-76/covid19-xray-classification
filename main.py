@@ -240,9 +240,10 @@ def generate_pdf_report(req_data: dict, img_bytes: bytes) -> bytes:
 # API ENDPOINTS
 # ==============================================================================
 
+# YAHAN CHANGE KIYA HAI - Ab live link par seedha HTML khulega
 @app.get("/")
 async def root():
-    return {"status": "Online", "service": "NeuroScan AI Engine"}
+    return FileResponse("index.html")
 
 @app.get("/health")
 async def health():
