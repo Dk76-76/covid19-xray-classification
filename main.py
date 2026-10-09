@@ -14,7 +14,7 @@ from typing import List, Dict, Any, Optional
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request, BackgroundTasks
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from PIL import Image, UnidentifiedImageError
