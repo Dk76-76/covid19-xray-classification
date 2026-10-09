@@ -5,7 +5,7 @@ python-multipart==0.0.9
 pydantic==2.6.4
 
 # Machine Learning & Data Processing
-tensorflow==2.15.0
+tensorflow
 numpy==1.26.4
 Pillow==10.2.0
 
