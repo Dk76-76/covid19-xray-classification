@@ -255,7 +255,8 @@
     <div id="toast-box"></div>
 
     <script>
-        const API_BASE = "https://covid19-xray-api.onrender.com";
+        // API_BASE ab blank kar diya gaya hai taaki frontend same Render URL use kare
+        const API_BASE = ""; 
         let activeFile = null;
         let currentPredId = null;
 
@@ -404,44 +405,44 @@
         }
 
         // PDF Report API Call
-async function generateReport() {
-    if(!currentPredId) return;
-    const pName = document.getElementById('pName').value || "Unknown";
-    const pAge = document.getElementById('pAge').value || "N/A";
-    const pGender = document.getElementById('pGender').value || "N/A";
-    const dName = document.getElementById('dName').value || "Assigned Physician";
-    
-    const btn = document.getElementById('pdfBtn');
-    btn.disabled = true; btn.textContent = "Compiling Report...";
+        async function generateReport() {
+            if(!currentPredId) return;
+            const pName = document.getElementById('pName').value || "Unknown";
+            const pAge = document.getElementById('pAge').value || "N/A";
+            const pGender = document.getElementById('pGender').value || "N/A";
+            const dName = document.getElementById('dName').value || "Assigned Physician";
+            
+            const btn = document.getElementById('pdfBtn');
+            btn.disabled = true; btn.textContent = "Compiling Report...";
 
-    try {
-        const req = await fetch(`${API_BASE}/generate-report`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ prediction_id: currentPredId, patient_name: pName, patient_age: pAge, patient_gender: pGender, doctor_name: dName })
-        });
-        
-        const data = await req.json();
-        if(!req.ok) throw new Error(data.detail);
+            try {
+                const req = await fetch(`${API_BASE}/generate-report`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ prediction_id: currentPredId, patient_name: pName, patient_age: pAge, patient_gender: pGender, doctor_name: dName })
+                });
+                
+                const data = await req.json();
+                if(!req.ok) throw new Error(data.detail);
 
-        // 🚀 Naya Tarika: Invisible Link se download trigger karna
-        const downloadUrl = `${API_BASE}/download-report/${data.report_id}`;
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        
-        // Naya tab open karne ke bajaye seedha download force karega
-        a.setAttribute('download', ''); 
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+                // Invisible Link se download trigger karna
+                const downloadUrl = `${API_BASE}/download-report/${data.report_id}`;
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                
+                // Naya tab open karne ke bajaye seedha download force karega
+                a.setAttribute('download', ''); 
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
 
-        showToast("Report Downloaded Successfully", "success");
-    } catch(e) {
-        showToast(e.message, "error");
-    } finally {
-        btn.disabled = false; btn.textContent = "Download PDF Report";
-    }
-}
+                showToast("Report Downloaded Successfully", "success");
+            } catch(e) {
+                showToast(e.message, "error");
+            } finally {
+                btn.disabled = false; btn.textContent = "Download PDF Report";
+            }
+        }
 
         // Stats Polling
         async function fetchStats() {
