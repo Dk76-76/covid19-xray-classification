@@ -166,7 +166,7 @@
         <div style="display: flex; gap: 15px; align-items: center;">
             <div id="apiStatus" style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--text-secondary);">
                 <div style="width:8px; height:8px; border-radius:50%; background:var(--text-secondary);" id="statusDot"></div>
-                Connecting...
+                <span id="statusText">Connecting...</span>
             </div>
             <button class="btn btn-outline" style="padding: 8px 16px;" onclick="toggleTheme()">🌓 Theme</button>
         </div>
@@ -249,14 +249,14 @@
         <div class="metric-card"><h4>Total Scans Processed</h4><p id="statTotal">0</p></div>
         <div class="metric-card"><h4>Avg. Confidence</h4><p id="statConf">0.0%</p></div>
         <div class="metric-card"><h4>System Latency</h4><p id="statLat">0 ms</p></div>
-        <div class="metric-card"><h4>AI Engine Status</h4><p style="color: var(--success);">Online</p></div>
+        <div class="metric-card"><h4>AI Engine Status</h4><p id="engineStatus" style="color: var(--text-secondary);">Connecting...</p></div>
     </div>
 
     <div id="toast-box"></div>
 
     <script>
-        // API_BASE ab blank kar diya gaya hai taaki frontend same Render URL use kare
-        const API_BASE = ""; 
+        // Apne Render Backend Server ka URL yahan rakhein (bina aakhiri '/' ke)
+        const API_BASE = "https://covid19-xray-ui.onrender.com"; 
         let activeFile = null;
         let currentPredId = null;
 
@@ -284,18 +284,36 @@
             html.setAttribute('data-theme', newTheme);
         }
 
-        // Health Check
+        // Health Check (Upar Navbar aur Niche AI Engine Status dono ko update karega)
         async function checkAPIHealth() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const engineStatus = document.getElementById('engineStatus');
+
             try {
                 const res = await fetch(`${API_BASE}/health`);
-                if(res.ok) {
-                    document.getElementById('statusDot').style.background = 'var(--success)';
-                    document.getElementById('statusDot').style.boxShadow = '0 0 10px var(--success)';
-                    document.getElementById('apiStatus').innerHTML = document.getElementById('apiStatus').innerHTML.replace('Connecting...', 'System Ready');
+                if (res.ok) {
+                    // Navbar Status: Online
+                    statusDot.style.background = 'var(--success)';
+                    statusDot.style.boxShadow = '0 0 10px var(--success)';
+                    statusText.textContent = 'System Ready';
+                    
+                    // Bottom Card Status: Online
+                    engineStatus.textContent = 'Online';
+                    engineStatus.style.color = 'var(--success)';
+                } else {
+                    throw new Error("Server not ready");
                 }
             } catch(e) {
-                document.getElementById('statusDot').style.background = 'var(--danger)';
-                document.getElementById('apiStatus').innerHTML = document.getElementById('apiStatus').innerHTML.replace('Connecting...', 'Offline');
+                // Navbar Status: Offline
+                statusDot.style.background = 'var(--danger)';
+                statusDot.style.boxShadow = 'none';
+                statusText.textContent = 'Offline';
+                
+                // Bottom Card Status: Offline
+                engineStatus.textContent = 'Offline';
+                engineStatus.style.color = 'var(--danger)';
+                
                 showToast("Backend Server Unreachable.", "error");
             }
         }
@@ -429,8 +447,6 @@
                 const downloadUrl = `${API_BASE}/download-report/${data.report_id}`;
                 const a = document.createElement('a');
                 a.href = downloadUrl;
-                
-                // Naya tab open karne ke bajaye seedha download force karega
                 a.setAttribute('download', ''); 
                 document.body.appendChild(a);
                 a.click();
@@ -448,6 +464,7 @@
         async function fetchStats() {
             try {
                 const res = await fetch(`${API_BASE}/statistics`);
+                if (!res.ok) return;
                 const data = await res.json();
                 document.getElementById('statTotal').textContent = data.total_predictions.toLocaleString();
                 document.getElementById('statConf').textContent = `${data.average_confidence.toFixed(1)}%`;
