@@ -102,10 +102,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# FIXED: allow_credentials=False kiya gaya hai taaki GitHub Pages se CORS block na ho
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -240,10 +241,11 @@ def generate_pdf_report(req_data: dict, img_bytes: bytes) -> bytes:
 # API ENDPOINTS
 # ==============================================================================
 
-# YAHAN CHANGE KIYA HAI - Ab live link par seedha HTML khulega
 @app.get("/")
 async def root():
-    return FileResponse("index.html")
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return {"status": "Online", "service": "NeuroScan AI Engine"}
 
 @app.get("/health")
 async def health():
